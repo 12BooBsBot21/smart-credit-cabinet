@@ -23,7 +23,6 @@
     "noFallthroughCasesInSwitch": true,
 
     /*пути для алиаса*/
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }
