@@ -1,0 +1,82 @@
+# Запуск всего решения: docker compose up --build → http://localhost:8080
+name: credit-conveyor
+
+x-backend: &backend
+  build: ./backend
+  image: credit-conveyor-backend:local
+  environment:
+    DATABASE_URL: postgresql+psycopg://app:app@db:5432/credit_conveyor
+    JWT_SECRET: ${JWT_SECRET:-change-me-in-env-file-at-least-32-bytes}
+    MOCKS_URL: http://mocks:8001
+    PIPELINE_STEP_DELAY_SEC: ${PIPELINE_STEP_DELAY_SEC:-1.5}
+    MOCK_FAILURE_RATE: ${MOCK_FAILURE_RATE:-0}
+    LOG_LEVEL: INFO
+
+services:
+  db:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: credit_conveyor
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d credit_conveyor"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # Разово: миграции и демо-данные, затем завершается
+  migrate:
+    <<: *backend
+    command: ["sh", "-c", "alembic upgrade head && python -m app.seed"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  mocks:
+    <<: *backend
+    command: ["uvicorn", "app.mocks.main:app", "--host", "0.0.0.0", "--port", "8001"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    <<: *backend
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  worker:
+    <<: *backend
+    command: ["python", "-m", "app.worker"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      mocks:
+        condition: service_healthy
+    healthcheck:
+      # Воркер обновляет файл на каждом цикле; старше 30 секунд — воркер завис
+      test: ["CMD", "python", "-c", "import os, sys, time; sys.exit(time.time() - os.path.getmtime('/tmp/credit-conveyor-worker.heartbeat') > 30)"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  web:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  db-data:

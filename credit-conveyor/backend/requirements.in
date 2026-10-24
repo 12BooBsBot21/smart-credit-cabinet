@@ -1,0 +1,10 @@
+# Прямые зависимости бэкенда. Точные версии всех пакетов — в requirements.txt (lock-файл).
+# Обновить lock: pip install -r requirements.in && pip freeze > requirements.txt
+fastapi
+uvicorn
+sqlalchemy>=2.0,<2.1
+psycopg[binary]
+alembic
+pydantic-settings
+pyjwt
+httpx

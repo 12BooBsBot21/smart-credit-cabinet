@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Базовые стили и классы кнопок/карточек — из прототипа */
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background: #f6f7f9;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-white shadow-card;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-ring disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-accent-dark active:scale-[.98];
+  }
+  .btn-secondary {
+    @apply btn border border-line bg-white text-ink hover:border-slate-300 hover:bg-slate-50;
+  }
+  .btn-ghost {
+    @apply btn text-ink-muted hover:bg-slate-100 hover:text-ink;
+  }
+  .label {
+    @apply text-xs font-semibold uppercase tracking-wide text-ink-soft;
+  }
+}
