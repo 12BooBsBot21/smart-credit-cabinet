@@ -1,0 +1,4 @@
+# Переводы строк LF везде: иначе на Windows скрипты внутри Linux-контейнеров ломаются
+* text=auto eol=lf
+*.png binary
+*.jpg binary
