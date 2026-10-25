@@ -29,6 +29,7 @@
 | Tailwind CSS, PostCSS, Autoprefixer | MIT | Стили (только сборка) |
 | TypeScript | Apache-2.0 | Типизация (только разработка) |
 | openapi-typescript | MIT | Генерация типов из OpenAPI (только разработка) |
+| ESLint, typescript-eslint, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals | MIT | Линтер (только разработка) |
 
 ## Docker-образы
 
