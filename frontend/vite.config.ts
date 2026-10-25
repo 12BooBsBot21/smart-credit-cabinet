@@ -1,13 +1,15 @@
-import react from "@vitejs/plugin-react";
-import { fileURLToPath } from "url";
-import { defineConfig } from "vite";
+import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
-});
+  server: {
+    port: 5173,
+    // В разработке /api уходит на локальный бэкенд, в Docker то же самое делает nginx
+    proxy: { '/api': 'http://localhost:8000' },
+  },
+})
