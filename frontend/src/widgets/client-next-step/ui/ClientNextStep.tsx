@@ -1,6 +1,7 @@
 import { Loader2 } from 'lucide-react'
-import { Alert, Section } from '@/shared/ui'
+import { Alert, MockFrame, Section } from '@/shared/ui'
 import type { ApplicationDetail, ApplicationStatus } from '@/entities/application'
+import { AiTextCard, useClientExplanation } from '@/entities/ai-insight'
 import {
   AnswerInfoRequestForm,
   OfferChoice,
@@ -21,6 +22,7 @@ export function ClientNextStep({ application }: { application: ApplicationDetail
     <Section title="Что дальше">
       <div className="space-y-4">
         <StepContent application={application} />
+        <AiExplanation application={application} />
         {showReasons && (
           <div className="text-sm text-ink-muted">
             <div className="label mb-1">Почему такое решение</div>
@@ -38,8 +40,22 @@ export function ClientNextStep({ application }: { application: ApplicationDetail
   )
 }
 
+/** Объяснение решения простыми словами — МАКЕТ задачи ai-explanation */
+function AiExplanation({ application }: { application: ApplicationDetail }) {
+  const explanation = useClientExplanation(application)
+  if (explanation.data === null) return null
+  return (
+    <MockFrame taskId="ai-explanation">
+      <AiTextCard title="Объяснение простыми словами" loading={explanation.isPending}>
+        {explanation.data}
+      </AiTextCard>
+    </MockFrame>
+  )
+}
+
 function StepContent({ application }: { application: ApplicationDetail }) {
   const { id, status, info_request: request, offers, sign_code: signCode } = application
+  const accepted = offers.find((o) => o.status === 'ACCEPTED')
 
   switch (status) {
     case 'DRAFT':
@@ -76,7 +92,13 @@ function StepContent({ application }: { application: ApplicationDetail }) {
         </div>
       )
     case 'SIGNING':
-      return <SignContractForm applicationId={id} signCode={signCode} />
+      return (
+        <SignContractForm
+          applicationId={id}
+          signCode={signCode}
+          contract={accepted && { number: application.number, companyName: application.company_name, offer: accepted }}
+        />
+      )
     case 'ISSUED':
       return (
         <Alert tone="success" title="Деньги на счёте">

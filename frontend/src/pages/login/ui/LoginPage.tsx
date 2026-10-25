@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+import { Map as MapIcon } from 'lucide-react'
 import { Card } from '@/shared/ui'
 import { DemoAccounts, LoginForm } from '@/features/auth'
 
@@ -15,6 +17,9 @@ export function LoginPage() {
         <Card>
           <LoginForm />
         </Card>
+        <Link to="/map" className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-accent">
+          <MapIcon size={16} /> Карта задач команды
+        </Link>
       </div>
       <div>
         <h2 className="mb-1 text-base font-semibold text-ink">Тестовые учётки</h2>

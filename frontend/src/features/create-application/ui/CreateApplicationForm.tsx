@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import { Send } from 'lucide-react'
 import { Alert, Button, Field, Input, Textarea } from '@/shared/ui'
 import { moneyShort } from '@/shared/lib'
@@ -9,12 +9,14 @@ import { useCreateApplication } from '../model/useCreateApplication'
 interface Props {
   product: Product
   company: Company
+  /** Слот перед кнопкой отправки — страница кладёт сюда, например, чек-лист документов */
+  beforeSubmit?: ReactNode
 }
 
 /** Числовые поля держим строками, чтобы пользователь мог стереть значение целиком */
 const toNumber = (value: string) => (value.trim() ? Number(value.replace(/\s/g, '')) : undefined)
 
-export function CreateApplicationForm({ product, company }: Props) {
+export function CreateApplicationForm({ product, company, beforeSubmit }: Props) {
   const create = useCreateApplication()
   const [form, setForm] = useState({
     amount: String(Math.min(Math.max(1_000_000, product.amount_min), product.amount_max)),
@@ -95,6 +97,7 @@ export function CreateApplicationForm({ product, company }: Props) {
         </div>
       )}
 
+      {beforeSubmit}
       {create.error && <Alert tone="danger">{create.error.message}</Alert>}
       <Button type="submit" loading={create.isPending} className="w-full py-3 sm:w-auto">
         <Send size={16} /> Отправить заявку

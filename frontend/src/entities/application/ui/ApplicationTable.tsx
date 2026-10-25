@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { formatDateTime, moneyShort, months } from '@/shared/lib'
 import type { ApplicationSummary } from '../model/types'
@@ -7,9 +8,11 @@ interface Props {
   applications: ApplicationSummary[]
   hrefFor: (application: ApplicationSummary) => string
   showCompany?: boolean
+  /** Дополнительные колонки справа — например, SLA и ответственный в очереди банка */
+  extraColumns?: { header: string; render: (application: ApplicationSummary) => ReactNode }[]
 }
 
-export function ApplicationTable({ applications, hrefFor, showCompany = false }: Props) {
+export function ApplicationTable({ applications, hrefFor, showCompany = false, extraColumns = [] }: Props) {
   return (
     <div className="card overflow-x-auto">
       <table className="w-full min-w-[640px] text-left text-sm">
@@ -21,6 +24,11 @@ export function ApplicationTable({ applications, hrefFor, showCompany = false }:
             <th className="px-5 py-3 font-medium">Сумма и срок</th>
             <th className="px-5 py-3 font-medium">Статус</th>
             <th className="px-5 py-3 font-medium">Обновлена</th>
+            {extraColumns.map((c) => (
+              <th key={c.header} className="px-5 py-3 font-medium">
+                {c.header}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody className="divide-y divide-line">
@@ -40,6 +48,11 @@ export function ApplicationTable({ applications, hrefFor, showCompany = false }:
                 <StatusBadge status={a.status} />
               </td>
               <td className="px-5 py-3 text-ink-muted">{formatDateTime(a.updated_at)}</td>
+              {extraColumns.map((c) => (
+                <td key={c.header} className="px-5 py-3">
+                  {c.render(a)}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>

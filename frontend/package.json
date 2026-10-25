@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "lint": "eslint .",
+    "lint:fsd": "node scripts/check-fsd.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "api:types": "openapi-typescript ../docs/openapi.json -o src/shared/api/schema.d.ts"
